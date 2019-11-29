@@ -1,0 +1,11 @@
+#goal definition
+std_msgs/Bool enable_work
+---
+#result definition
+std_msgs/Float32 result_deg
+geometry_msgs/TransformStamped result_rotation
+std_msgs/Bool success_work
+---
+#feedback
+std_msgs/String work_method
+std_msgs/Bool work

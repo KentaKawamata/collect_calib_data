@@ -11,15 +11,41 @@ find_package(catkin REQUIRED COMPONENTS
   rospy
   std_msgs
   tf2_ros
+  genmsg
+  actionlib
+  actionlib_msgs
 )
 
 find_package(PCL REQUIRED)
 find_package(Eigen3 REQUIRED)
 
+# アクションメッセージの定義
+#####################################
+add_action_files(
+    DIRECTORY action
+    FILES rotation_broadcaster.action
+)
+
+generate_messages(
+    DEPENDENCIES
+    std_msgs
+    geometry_msgs
+    actionlib_msgs
+)
+#####################################
+
 catkin_package(
     INCLUDE_DIRS
     LIBRARIES ${PROJECT_NAME}
-    CATKIN_DEPENDS geometry_msgs pcl_conversions pcl_ros roscpp rospy std_msgs tf2_ros
+    CATKIN_DEPENDS geometry_msgs 
+                   pcl_conversions 
+                   pcl_ros 
+                   roscpp 
+                   rospy 
+                   std_msgs 
+                   tf2_ros
+                   actionlib
+                   actionlib_msgs
     DEPENDS
 )
 
@@ -30,21 +56,34 @@ include_directories(
    ${Eigen3_INCLUDE_DIRS}
 )
 
-add_executable(superimpose_velo_points
-   src/make_pc.cpp
-   include/make_pc.hpp
-   src/editCloud.cpp
-   include/editCloud.hpp
-   src/getRotationVector.cpp
-   include/getRotationVector.hpp
-)
+#add_executable(calib_velodyne
+#   src/calib_velodyne.cpp
+#   include/calib_velodyne.hpp
+#)
 
-add_dependencies(calib_velodyne
-   ${catkin_EXPORTED_TARGETS}
-)
+#add_dependencies(calib_velodyne
+#   ${catkin_EXPORTED_TARGETS}
+#)
 
-target_link_libraries(superimpose_velo_points
-    ${catkin_LIBRARIES}
-    ${PCL_LIBRARIES}
-    ${Eigen3_LIBRARIES}
-)
+#target_link_libraries(calib_velodyne
+#    ${catkin_LIBRARIES}
+#    ${PCL_LIBRARIES}
+#    ${Eigen3_LIBRARIES}
+#)
+
+
+#add_executable(rotation_broadcaster
+#   src/rotation_broadcaster.cpp
+#   include/rotation_broadcaster.hpp
+#)
+
+#add_dependencies(rotation_broadcaster
+#   ${catkin_EXPORTED_TARGETS}
+#   ${rotation_broadcaster_EXPORTED_TARGETS}
+#)
+
+#target_link_libraries(rotation_broadcaster
+#    ${catkin_LIBRARIES}
+#    ${PCL_LIBRARIES}
+#    ${Eigen3_LIBRARIES}
+#)
