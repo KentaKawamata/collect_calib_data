@@ -4,12 +4,13 @@ project(collect_calib_data)
 add_compile_options(-std=c++11)
 
 find_package(catkin REQUIRED COMPONENTS
-  geometry_msgs
-  pcl_conversions
-  pcl_ros
   roscpp
   rospy
+  geometry_msgs
+  sensor_msgs
   std_msgs
+  pcl_conversions
+  pcl_ros
   tf2_ros
   genmsg
   actionlib
@@ -37,15 +38,16 @@ generate_messages(
 catkin_package(
     INCLUDE_DIRS
     LIBRARIES ${PROJECT_NAME}
-    CATKIN_DEPENDS geometry_msgs 
-                   pcl_conversions 
-                   pcl_ros 
-                   roscpp 
-                   rospy 
-                   std_msgs 
-                   tf2_ros
-                   actionlib
-                   actionlib_msgs
+    CATKIN_DEPENDS  roscpp
+                    rospy
+                    geometry_msgs
+                    sensor_msgs
+                    std_msgs
+                    pcl_conversions
+                    pcl_ros
+                    tf2_ros 
+                    actionlib
+                    actionlib_msgs
     DEPENDS
 )
 
@@ -56,22 +58,26 @@ include_directories(
    ${Eigen3_INCLUDE_DIRS}
 )
 
-#add_executable(calib_velodyne
-#   src/calib_velodyne.cpp
-#   include/calib_velodyne.hpp
-#)
 
-#add_dependencies(calib_velodyne
-#   ${catkin_EXPORTED_TARGETS}
-#)
+#####################################
+add_executable(calib_velodyne
+   src/calib_velodyne.cpp
+   include/calib_velodyne.hpp
+)
 
-#target_link_libraries(calib_velodyne
-#    ${catkin_LIBRARIES}
-#    ${PCL_LIBRARIES}
-#    ${Eigen3_LIBRARIES}
-#)
+add_dependencies(calib_velodyne
+   ${catkin_EXPORTED_TARGETS}
+)
+
+target_link_libraries(calib_velodyne
+    ${catkin_LIBRARIES}
+    ${PCL_LIBRARIES}
+    ${Eigen3_LIBRARIES}
+)
+#####################################
 
 
+#####################################
 add_executable(rotation_broadcaster
    src/rotation_broadcaster.cpp
    include/rotation_broadcaster.hpp
@@ -87,3 +93,4 @@ target_link_libraries(rotation_broadcaster
     ${PCL_LIBRARIES}
     ${Eigen3_LIBRARIES}
 )
+#####################################
