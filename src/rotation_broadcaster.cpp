@@ -1,14 +1,10 @@
-//#include <pcl/point_types.h>
-//#include <pcl_conversions/pcl_conversions.h>
-
 #include <Eigen/Core>
-//#include <Eigen/Dense>
 
 #include <ros/ros.h>
 #include <std_msgs/Bool.h>
 #include <tf2/LinearMath/Quaternion.h>
 #include <tf2/LinearMath/Vector3.h>
-#include <tf2_ros/transform_broadcaster.h>
+
 #include <geometry_msgs/TransformStamped.h>
 #include <actionlib/server/simple_action_server.h>
 #include <collect_calib_data/rotation_broadcasterAction.h>
@@ -23,9 +19,9 @@ namespace CalibrationVelodyne
         server(nh, "rotation_broadcaster", false),
         degree_sub(nh.subscribe("degree", 1, &RotationBroadcaster::degree_cb, this))
     {
-        ros::param::get("/rota_bc/x", x);
-        ros::param::get("/rota_bc/y", y);
-        ros::param::get("/rota_bc/z", z);
+        ros::param::get("/rotation_broadcaster/x", x);
+        ros::param::get("/rotation_broadcaster/y", y);
+        ros::param::get("/rotation_broadcaster/z", z);
 
         server.registerGoalCallback(boost::bind(&RotationBroadcaster::goal_callback, this));
         server.registerPreemptCallback(boost::bind(&RotationBroadcaster::preempt_callback, this));

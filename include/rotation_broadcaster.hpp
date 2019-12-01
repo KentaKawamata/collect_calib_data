@@ -2,7 +2,6 @@
 #define _ROTATION_BROADCASTER_H_
 
 #include <Eigen/Core>
-//#include <Eigen/Dense>
 
 #include <ros/ros.h>
 #include <std_msgs/Bool.h>
