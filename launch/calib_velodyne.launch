@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<launch>
+
+    <node pkg="collect_calib_data" 
+          type="calib_velodyne"
+          name="calib_velodyne" 
+          output="screen" >
+        <rosparam>
+            dir_path: /datas/velodyne_calib/
+            file_name: calib
+            degree: 0.0
+        </rosparam>
+    </node>
+
+</launch>
