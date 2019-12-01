@@ -26,11 +26,8 @@ namespace CalibraionVelodyne
         bool success_set_ts;
         int degree;
 
-        std::string file_path;
+        std::string dir_path;
         std::string file_name;
-
-        std::string lis_header_id;
-        std::string lis_child_id;
 
         std::string cloud_frame;
 

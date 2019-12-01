@@ -39,13 +39,9 @@ namespace CalibraionVelodyne
 
     void CalibVelo::get_params()
     {
-        ros::param::get("/use_velo/lis_header_id", lis_header_id);
-        ros::param::get("/use_velo/lis_child_id", lis_child_id);
-    
-        ros::param::get("/use_velo/file_path", file_path);
-        ros::param::get("/use_velo/file_name", file_name);
-
-        ros::param::get("/calib_velo/degree", degree);
+        ros::param::get("/calib_velodyne/dir_path", dir_path);
+        ros::param::get("/calib_velodyne/file_name", file_name);
+        ros::param::get("/calib_velodyne/degree", degree);
     }
 
 
@@ -108,12 +104,13 @@ namespace CalibraionVelodyne
                 pcl::fromROSMsg(pc2_transformed, *cloud);
 
                 std::string format = ".pcd";
-                std::string savename = file_path 
+                std::string savename = dir_path 
                                      + file_name 
                                      + std::to_string(count) 
                                      + format; 
         
                 pcl::io::savePCDFileASCII(savename, *cloud);
+                count++;
             }
         }
     }
@@ -149,7 +146,7 @@ namespace CalibraionVelodyne
 
 int main(int argc, char *argv[])
 {
-    ros::init(argc, argv, "superimpose_velo_points");
+    ros::init(argc, argv, "calib_velodyne");
     ros::NodeHandle nh;
 
     CalibraionVelodyne::CalibVelo *get_pcl;
