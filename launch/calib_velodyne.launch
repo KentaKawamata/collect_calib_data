@@ -2,6 +2,18 @@
 <launch>
 
     <node pkg="collect_calib_data" 
+          type="rotation_broadcaster"
+          name="rotation_broadcaster" 
+          output="screen" >
+        <!-- Transform param x y z -->
+        <rosparam>
+            x: 0.0
+            y: 0.0
+            z: 0.0
+        </rosparam>
+    </node>
+
+    <node pkg="collect_calib_data" 
           type="calib_velodyne"
           name="calib_velodyne" 
           output="screen" >
