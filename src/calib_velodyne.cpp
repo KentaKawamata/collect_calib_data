@@ -60,7 +60,7 @@ namespace CalibraionVelodyne
             ts.transform.rotation.x = 0.0;
             ts.transform.rotation.y = 0.0;
             ts.transform.rotation.z = 0.0;
-            ts.transform.rotation.w = 0.0;
+            ts.transform.rotation.w = 1.0;
             ts.transform.translation.x = 0.0;
             ts.transform.translation.y = 0.0;
             ts.transform.translation.z = 0.0;
