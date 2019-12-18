@@ -1,6 +1,14 @@
 <?xml version="1.0"?>
 <launch>
 
+
+    <node pkg="rosserial_python" name="serial_node" type="serial_node.py" >
+        <param name="port" type="string" value="/dev/ttyACM0" />
+    </node>
+    
+    <include file="$(find velodyne_pointcloud)/launch/VLP16_points.launch" />
+
+
     <node pkg="collect_calib_data" 
           type="rotation_broadcaster"
           name="rotation_broadcaster" 
@@ -12,6 +20,7 @@
             z: 0.0
         </rosparam>
     </node>
+
 
     <node pkg="collect_calib_data" 
           type="calib_velodyne"
