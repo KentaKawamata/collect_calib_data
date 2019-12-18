@@ -23,6 +23,9 @@ namespace CalibrationVelodyne
     {
     private:
 
+        int degree;
+        bool cb_success;
+
         float pitch;
         float x;
         float y;
@@ -30,6 +33,7 @@ namespace CalibrationVelodyne
         bool success;
         
         ros::Subscriber degree_sub;
+        ros::Publisher degree_pub;
 
         actionlib::SimpleActionServer<collect_calib_data::rotation_broadcasterAction> server;
         collect_calib_data::rotation_broadcasterFeedback feedback;
@@ -37,7 +41,6 @@ namespace CalibrationVelodyne
         collect_calib_data::rotation_broadcasterGoalConstPtr goal;
 
 
-        void degree_cb(const std_msgs::Float32 &pitch_cb);
 
         void set_R(
             Eigen::Matrix3f &R,
@@ -58,6 +61,9 @@ namespace CalibrationVelodyne
             const float pitch,
             const float yaw,
             geometry_msgs::TransformStamped &ts);
+
+        void degree_cb(
+            const std_msgs::Int16 &potentio_cb);
 
         void goal_callback();
         void preempt_callback();

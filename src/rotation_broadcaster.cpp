@@ -2,6 +2,7 @@
 
 #include <ros/ros.h>
 #include <std_msgs/Bool.h>
+#include <std_msgs/Int16.h>
 #include <tf2/LinearMath/Quaternion.h>
 #include <tf2/LinearMath/Vector3.h>
 
@@ -15,9 +16,10 @@ namespace CalibrationVelodyne
 {
 
     RotationBroadcaster::RotationBroadcaster(ros::NodeHandle &nh) :
-        success(false),
-        server(nh, "rotation_broadcaster", false),
-        degree_sub(nh.subscribe("degree", 1, &RotationBroadcaster::degree_cb, this))
+        success (false),
+        server (nh, "rotation_broadcaster", false),
+        degree_pub (nh.advertise<std_msgs::Int16>("servo", 10)),
+        degree_sub (nh.subscribe("degree", 1, &RotationBroadcaster::degree_cb, this))
     {
         ros::param::get("/rotation_broadcaster/x", x);
         ros::param::get("/rotation_broadcaster/y", y);
@@ -33,12 +35,6 @@ namespace CalibrationVelodyne
     {
     }
 
-
-    void RotationBroadcaster::degree_cb(const std_msgs::Float32 &pitch_cb)
-    {
-        pitch = pitch_cb.data;
-        success = true;
-    }
 
     // 回転行列Rの初期位置を設定
     void RotationBroadcaster::set_R(
@@ -92,6 +88,7 @@ namespace CalibrationVelodyne
         return t;
     }
 
+
     void RotationBroadcaster::set_ts(
         const float roll,
         const float pitch,
@@ -112,7 +109,7 @@ namespace CalibrationVelodyne
 	    ts.transform.translation.z = translation.z();
 
 	    tf2::Quaternion rotation;
-	    rotation.setRPY(0, 0, 0);
+	    rotation.setRPY(roll, pitch, yaw);
 	    ts.transform.rotation.x = rotation.x();
 	    ts.transform.rotation.y = rotation.y();
 	    ts.transform.rotation.z = rotation.z();
@@ -123,6 +120,20 @@ namespace CalibrationVelodyne
         server.publishFeedback(feedback);
     }
 
+    void RotationBroadcaster::degree_cb(
+        const std_msgs::Int16 &potentio_cb)
+    {
+        if(degree != potentio_cb.data)
+        {
+            degree = potentio_cb.data;
+            cb_success = true;
+        }
+        else
+        {
+            cb_success = false;
+        }
+    }
+
 
     void RotationBroadcaster::goal_callback()
     {
@@ -131,14 +142,24 @@ namespace CalibrationVelodyne
           goal = server.acceptNewGoal();
         }
 
+        int pub_servo=0;
+        std_msgs::Int16 servo;
         geometry_msgs::TransformStamped ts;
 
         while(ros::ok())
         {
-            if(success)
+            ros::param::get("mount/servo", pub_servo); 
+            if(servo.data!=pub_servo)
             {
+                servo.data = pub_servo;
+                degree_pub.publish(servo);
+            }
+
+            if(cb_success)
+            {
+                pitch = degree * (M_PI/180.0);
                 set_ts(0.0, pitch, 0.0, ts);
-                success = false;
+                cb_success = false;
                 break;
             }
             ros::Duration(1.0);
