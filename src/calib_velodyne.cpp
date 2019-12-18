@@ -51,10 +51,9 @@ namespace CalibraionVelodyne
         goal.enable_work.data = true;
         client.sendGoal(goal);
 
-        bool finished = client.waitForResult(ros::Duration(2.0));
+        bool finished = client.waitForResult(ros::Duration(7.0));
         if(!finished)
         {
-            ROS_WARN("rotation broadcaster TimeOut");
             success_set_ts = false;
 
             ts.transform.rotation.x = 0.0;
@@ -70,6 +69,7 @@ namespace CalibraionVelodyne
             success_set_ts = true;
             result = client.getResult();
             ts = result->result_rotation;
+            ROS_INFO("Degree of mount : %d", result->result_deg.data);
         }
     }
 
@@ -82,16 +82,15 @@ namespace CalibraionVelodyne
 
         if(!send_degree)
         {
-            ROS_INFO("Degree : %d", degree);
+            ROS_INFO("Do not publish degree %d", degree);
         }
         else
         {
-            ROS_INFO("Degree : %d", degree);
-
             get_ts(ts);
             if(!success_set_ts)
             {
-                ROS_WARN("Could not set ts");
+                //ROS_WARN("Could not set ts");
+                ROS_WARN("rotation broadcaster TimeOut");
             }
             else
             {
@@ -111,6 +110,7 @@ namespace CalibraionVelodyne
         
                 pcl::io::savePCDFileASCII(savename, *cloud);
                 count++;
+                ROS_INFO("Save PCD file");
             }
         }
     }
@@ -123,22 +123,25 @@ namespace CalibraionVelodyne
 
         while(ros::ok())
         {
-            ros::param::get("/calib_velo/degree", degree);
+            ros::param::get("/calib_velodyne/degree", degree);
             if(degree != pub_degree.data)
             {
+                ROS_INFO("change degree");
                 pub_degree.data = degree;
                 degree_pub.publish(pub_degree);
-                ros::Duration(7.0);
                 send_degree = true;
+            
+                rate.sleep();
+                ros::spinOnce();
             }
             else
             {
-                ros::Duration(2.0);
+                ROS_INFO("same degree");
                 send_degree = false;
-                continue;
+            
+                rate.sleep();
+                ros::spinOnce();
             }
-            rate.sleep();
-            ros::spinOnce();
         }
     }
 }

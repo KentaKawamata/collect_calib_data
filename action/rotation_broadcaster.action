@@ -2,7 +2,7 @@
 std_msgs/Bool enable_work
 ---
 #result definition
-std_msgs/Float32 result_deg
+std_msgs/Int16 result_deg
 geometry_msgs/TransformStamped result_rotation
 std_msgs/Bool success_work
 ---
