@@ -18,7 +18,6 @@ namespace CalibrationVelodyne
     RotationBroadcaster::RotationBroadcaster(ros::NodeHandle &nh) :
         success (false),
         server (nh, "rotation_broadcaster", false),
-        degree_pub (nh.advertise<std_msgs::Int16>("servo", 10)),
         degree_sub (nh.subscribe("degree", 1, &RotationBroadcaster::degree_cb, this))
     {
         ros::param::get("/rotation_broadcaster/x", x);

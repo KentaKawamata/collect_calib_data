@@ -33,7 +33,6 @@ namespace CalibrationVelodyne
         bool success;
         
         ros::Subscriber degree_sub;
-        ros::Publisher degree_pub;
 
         actionlib::SimpleActionServer<collect_calib_data::rotation_broadcasterAction> server;
         collect_calib_data::rotation_broadcasterFeedback feedback;
