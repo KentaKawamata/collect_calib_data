@@ -123,46 +123,10 @@ namespace CalibrationVelodyne
     void RotationBroadcaster::degree_cb(
         const std_msgs::Int16 &potentio_cb)
     {
-        int pub_deg;
-        ros::param::get("/calib_velodyne/degree", pub_deg);
-
         if(degree != potentio_cb.data)
         {
-            if(pub_deg == potentio_cb.data)
-            {
-                degree = potentio_cb.data;
-                cb_success = true;
-            }
-            else if(pub_deg == -1*potentio_cb.data)
-            {
-                degree = -1*potentio_cb.data;
-                cb_success = true;
-            }
-            else if(pub_deg == 360-potentio_cb.data)
-            {
-                degree = 360-potentio_cb.data;
-                cb_success = true;
-            }
-            else if(pub_deg == -1*(360-potentio_cb.data))
-            {
-                degree = -1*(360-potentio_cb.data);
-                cb_success = true;
-            }
-            else if(pub_deg == 359-potentio_cb.data)
-            {
-                degree = 359-potentio_cb.data;
-                cb_success = true;
-            }
-            else if(pub_deg == -1*(359-potentio_cb.data))
-            {
-                degree = -1*(359-potentio_cb.data);
-                cb_success = true;
-            }
-            else
-            {
-                ROS_INFO("potentio degree : %d", potentio_cb.data);
-                cb_success = false;
-            }
+            degree = potentio_cb.data;
+            cb_success = true;
         }
         else
         {
@@ -178,21 +142,11 @@ namespace CalibrationVelodyne
           goal = server.acceptNewGoal();
         }
 
-        //int pub_servo=0;
-        //std_msgs::Int16 servo;
+        ros::Rate rate(1.0);
         geometry_msgs::TransformStamped ts;
 
         while(ros::ok())
         {
-            /*
-            ros::param::get("mount/servo", pub_servo); 
-            if(servo.data!=pub_servo)
-            {
-                servo.data = pub_servo;
-                degree_pub.publish(servo);
-            }
-            */
-
             if(cb_success)
             {
                 pitch = degree * (M_PI/180.0);
@@ -202,8 +156,9 @@ namespace CalibrationVelodyne
             }
             else
             {
-                ROS_WARN("Could not get degree of mount");
-                ros::Duration(1.0);
+                ROS_WARN("Do not movement the mount");
+                //ROS_WARN("potentio degree : %d", degree);
+                rate.sleep();
                 ros::spinOnce();
             }
         }

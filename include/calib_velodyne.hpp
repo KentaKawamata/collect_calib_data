@@ -25,6 +25,7 @@ namespace CalibraionVelodyne
         bool send_degree;
         bool success_set_ts;
         int degree;
+        int result_degree;
 
         std::string dir_path;
         std::string file_name;

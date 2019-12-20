@@ -51,7 +51,7 @@ namespace CalibraionVelodyne
         goal.enable_work.data = true;
         client.sendGoal(goal);
 
-        bool finished = client.waitForResult(ros::Duration(7.0));
+        bool finished = client.waitForResult(ros::Duration(3.0));
         if(!finished)
         {
             success_set_ts = false;
@@ -69,7 +69,7 @@ namespace CalibraionVelodyne
             success_set_ts = true;
             result = client.getResult();
             ts = result->result_rotation;
-            ROS_INFO("Degree of mount : %d", result->result_deg.data);
+            result_degree = result->result_deg.data;
         }
     }
 
@@ -82,7 +82,7 @@ namespace CalibraionVelodyne
 
         if(!send_degree)
         {
-            ROS_INFO("Do not publish degree %d", degree);
+            ROS_INFO("Now degree of mount : %d", result_degree);
         }
         else
         {
@@ -105,12 +105,15 @@ namespace CalibraionVelodyne
                 std::string format = ".pcd";
                 std::string savename = dir_path 
                                      + file_name 
-                                     + std::to_string(count) 
+                                     + std::to_string(result_degree) 
                                      + format; 
         
                 pcl::io::savePCDFileASCII(savename, *cloud);
-                count++;
-                ROS_INFO("Save PCD file");
+                //count++;
+                ROS_INFO_STREAM("Save PCD file : " 
+                                + file_name 
+                                + std::to_string(result_degree) 
+                                + format );
             }
         }
     }
@@ -126,7 +129,7 @@ namespace CalibraionVelodyne
             ros::param::get("/calib_velodyne/degree", degree);
             if(degree != pub_degree.data)
             {
-                ROS_INFO("change degree");
+                ROS_INFO("Published degree to mount : %d", degree);
                 pub_degree.data = degree;
                 degree_pub.publish(pub_degree);
                 send_degree = true;
@@ -136,7 +139,7 @@ namespace CalibraionVelodyne
             }
             else
             {
-                ROS_INFO("same degree");
+                //ROS_INFO("same degree");
                 send_degree = false;
             
                 rate.sleep();
