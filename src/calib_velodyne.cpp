@@ -105,14 +105,14 @@ namespace CalibraionVelodyne
                 std::string format = ".pcd";
                 std::string savename = dir_path 
                                      + file_name 
-                                     + std::to_string(result_degree) 
+                                     + std::to_string(count) 
                                      + format; 
         
                 pcl::io::savePCDFileASCII(savename, *cloud);
-                //count++;
+                count++;
                 ROS_INFO_STREAM("Save PCD file : " 
                                 + file_name 
-                                + std::to_string(result_degree) 
+                                + std::to_string(count) 
                                 + format );
             }
         }
