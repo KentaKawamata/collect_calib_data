@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<launch>
+
+    <node pkg="collect_calib_data" 
+          type="rotation_broadcaster"
+          name="rotation_broadcaster" 
+          output="screen" >
+        <!-- Transform param x y z -->
+        <rosparam>
+            x: 0.0
+            y: 0.0
+            z: 0.0
+            r: 0.0
+            p: 0.0
+            y: 0.0
+        </rosparam>
+    </node>
+
+
+    <node pkg="collect_calib_data" 
+          type="calib_velodyne"
+          name="calib_velodyne" 
+          output="screen" >
+        <rosparam>
+            dir_path: /datas/velodyne_calib/
+            file_name: calib
+            degree: 0.0
+        </rosparam>
+    </node>
+
+</launch>
