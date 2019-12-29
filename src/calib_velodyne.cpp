@@ -41,7 +41,7 @@ namespace CalibraionVelodyne
     {
         ros::param::get("/calib_velodyne/dir_path", dir_path);
         ros::param::get("/calib_velodyne/file_name", file_name);
-        ros::param::get("/calib_velodyne/degree", degree);
+        ros::param::get("/mount_tf_broadcaster/pub_degree", degree);
     }
 
 
@@ -79,6 +79,7 @@ namespace CalibraionVelodyne
         sensor_msgs::PointCloud2 pc2_transformed;
         geometry_msgs::TransformStamped ts;
         Eigen::Matrix4f R;
+        Eigen::Matrix4f R_inv;
 
         if(!send_degree)
         {
@@ -95,6 +96,7 @@ namespace CalibraionVelodyne
             else
             {
                 R = tf2::transformToEigen(ts.transform).matrix().cast<float>();
+                R_inv = R.transpose();
 
                 pcl_ros::transformPointCloud(R, 
                                              pc2, 
@@ -109,11 +111,11 @@ namespace CalibraionVelodyne
                                      + format; 
         
                 pcl::io::savePCDFileASCII(savename, *cloud);
-                count++;
                 ROS_INFO_STREAM("Save PCD file : " 
                                 + file_name 
                                 + std::to_string(count) 
                                 + format );
+                count++;
             }
         }
     }
@@ -126,12 +128,14 @@ namespace CalibraionVelodyne
 
         while(ros::ok())
         {
-            ros::param::get("/calib_velodyne/degree", degree);
+            ros::param::get("/mount_tf_broadcaster/pub_degree", degree);
             if(degree != pub_degree.data)
             {
                 ROS_INFO("Published degree to mount : %d", degree);
                 pub_degree.data = degree;
-                degree_pub.publish(pub_degree);
+                //degree_pub.publish(pub_degree);
+                ROS_INFO("Wait for mount finished rotation ...");
+                ros::Duration(7.0).sleep();
                 send_degree = true;
             
                 rate.sleep();

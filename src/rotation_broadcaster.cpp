@@ -6,6 +6,7 @@
 #include <tf2/LinearMath/Quaternion.h>
 #include <tf2/LinearMath/Vector3.h>
 
+#include <tf2_ros/transform_listener.h>
 #include <geometry_msgs/TransformStamped.h>
 #include <actionlib/server/simple_action_server.h>
 #include <collect_calib_data/rotation_broadcasterAction.h>
@@ -98,7 +99,7 @@ namespace CalibrationVelodyne
         t = set_diff_xyz(x, y, z, roll, pitch, yaw);
 
         ts.header.stamp = ros::Time::now();
-        ts.header.frame_id = "map";
+        ts.header.frame_id = "mount";
         ts.child_frame_id = "velodyne";
 
         tf2::Vector3 translation;
@@ -142,10 +143,26 @@ namespace CalibrationVelodyne
         }
 
         ros::Rate rate(1.0);
+        tf2_ros::Buffer tfBuffer;
+        tf2_ros::TransformListener tfListener(tfBuffer);
         geometry_msgs::TransformStamped ts;
 
         while(ros::ok())
         {
+            try
+            {
+                ts = tfBuffer.lookupTransform("map", "velodyne", ros::Time());
+                break;
+            }
+            catch(tf2::TransformException &ex)
+            {
+                ROS_ERROR("%s", ex.what());
+                ros::Duration(1.0).sleep();
+                ros::spinOnce();
+                continue;
+            }
+
+            /* 
             if(cb_success)
             {
                 pitch = degree * (M_PI/180.0);
@@ -160,12 +177,13 @@ namespace CalibrationVelodyne
                 rate.sleep();
                 ros::spinOnce();
             }
+            */
         }
         
         result.success_work.data = true;
         result.result_deg.data = degree;
         result.result_rotation = ts;
-        server.setSucceeded(result, "R");
+        server.setSucceeded(result, "ts");
     }
 
 
