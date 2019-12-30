@@ -1,6 +1,7 @@
 #include <ros/ros.h>
-#include <std_msgs/Int16.h>
+#include <std_msgs/Float32.h>
 #include <sensor_msgs/PointCloud2.h>
+#include <sensor_msgs/JointState.h>
 #include <geometry_msgs/TransformStamped.h>
 
 #include <tf2/transform_datatypes.h>
@@ -10,27 +11,16 @@
 #include <pcl_conversions/pcl_conversions.h>
 #include <pcl/io/pcd_io.h>
 
-#include <actionlib/client/simple_action_client.h>
-#include <collect_calib_data/rotation_broadcasterAction.h>
-
 #include "./../include/calib_velodyne.hpp"
 
 namespace CalibraionVelodyne
 {
     CalibVelo::CalibVelo(ros::NodeHandle &nh) : 
-        cloud (new pcl::PointCloud<pcl::PointXYZ>()),
-        cloud_frame ("/velodyne_points"),
-        count (0),
-        client ("/rotation_broadcaster", true),
-        degree_pub (nh.advertise<std_msgs::Int16>("servo", 10)),
-        cloud_sub(nh.subscribe(cloud_frame, 1, &CalibVelo::getpc2_cb, this))
+        count_ (0),
+        pub_ (nh.advertise<sensor_msgs::JointState>("ptu/cmd", 1)),
+        cloud_sub_ (nh.subscribe("/velodyne_points", 1, &CalibVelo::getpc2_cb, this))
     {
         get_params();
-        if(!client.waitForServer(ros::Duration(20.0)))
-        {
-            ROS_INFO("Could not find server : rotation_broadcaster");
-            ros::shutdown();
-        }
     }
 
     CalibVelo::~CalibVelo()
@@ -39,84 +29,51 @@ namespace CalibraionVelodyne
 
     void CalibVelo::get_params()
     {
-        ros::param::get("/calib_velodyne/dir_path", dir_path);
-        ros::param::get("/calib_velodyne/file_name", file_name);
-        ros::param::get("/mount_tf_broadcaster/pub_degree", degree);
+        ros::param::get("/calib_velodyne/dir_path", dir_path_);
+        ros::param::get("/calib_velodyne/file_name", file_name_);
     }
 
 
     void CalibVelo::get_ts(
         geometry_msgs::TransformStamped &ts)
     {
-        goal.enable_work.data = true;
-        client.sendGoal(goal);
-
-        bool finished = client.waitForResult(ros::Duration(3.0));
-        if(!finished)
-        {
-            success_set_ts = false;
-
-            ts.transform.rotation.x = 0.0;
-            ts.transform.rotation.y = 0.0;
-            ts.transform.rotation.z = 0.0;
-            ts.transform.rotation.w = 1.0;
-            ts.transform.translation.x = 0.0;
-            ts.transform.translation.y = 0.0;
-            ts.transform.translation.z = 0.0;
-        }
-        else
-        {
-            success_set_ts = true;
-            result = client.getResult();
-            ts = result->result_rotation;
-            result_degree = result->result_deg.data;
-        }
     }
 
     void CalibVelo::getpc2_cb(
         const sensor_msgs::PointCloud2 &pc2)
     {
         sensor_msgs::PointCloud2 pc2_transformed;
-        geometry_msgs::TransformStamped ts;
         Eigen::Matrix4f R;
-        Eigen::Matrix4f R_inv;
+        //Eigen::Matrix4f R_inv;
 
-        if(!send_degree)
+        if(!send_deg_)
         {
-            ROS_INFO("Now degree of mount : %d", result_degree);
+            ROS_INFO("Now degree of mount : ");
         }
         else
         {
-            get_ts(ts);
-            if(!success_set_ts)
-            {
-                //ROS_WARN("Could not set ts");
-                ROS_WARN("rotation broadcaster TimeOut");
-            }
-            else
-            {
-                R = tf2::transformToEigen(ts.transform).matrix().cast<float>();
-                R_inv = R.transpose();
+            R = tf2::transformToEigen(ts_.transform).matrix().cast<float>();
+            //R_inv = R.transpose();
 
-                pcl_ros::transformPointCloud(R, 
-                                             pc2, 
-                                             pc2_transformed);
+            pcl_ros::transformPointCloud(R, 
+                                        pc2, 
+                                        pc2_transformed);
 
-                pcl::fromROSMsg(pc2_transformed, *cloud);
+            pcl::PointCloud<pcl::PointXYZ>::Ptr cloud (new pcl::PointCloud<pcl::PointXYZ>() );
+            pcl::fromROSMsg(pc2_transformed, *cloud);
 
-                std::string format = ".pcd";
-                std::string savename = dir_path 
-                                     + file_name 
-                                     + std::to_string(count) 
-                                     + format; 
+            std::string format = ".pcd";
+            std::string savename = dir_path_ 
+                                 + file_name_ 
+                                 + std::to_string(count_) 
+                                 + format; 
         
-                pcl::io::savePCDFileASCII(savename, *cloud);
-                ROS_INFO_STREAM("Save PCD file : " 
-                                + file_name 
-                                + std::to_string(count) 
-                                + format );
-                count++;
-            }
+            pcl::io::savePCDFileASCII(savename, *cloud);
+            ROS_INFO_STREAM("Save PCD file : " 
+                            + file_name_ 
+                            + std::to_string(count_) 
+                            + format );
+            count_++;
         }
     }
 
@@ -124,19 +81,30 @@ namespace CalibraionVelodyne
     void CalibVelo::run()
     {
         ros::Rate rate(1.0);
-        pub_degree.data = 1000.0;
+        float pitch;
+        float tmp_deg;
 
         while(ros::ok())
         {
-            ros::param::get("/mount_tf_broadcaster/pub_degree", degree);
-            if(degree != pub_degree.data)
+            ros::param::get("/collect_calib_data/pitch", pitch);
+            if(pitch != tmp_deg)
             {
-                ROS_INFO("Published degree to mount : %d", degree);
-                pub_degree.data = degree;
-                //degree_pub.publish(pub_degree);
+                tmp_deg = pitch;
+                sensor_msgs::JointState js;
+                js.header.stamp = ros::Time::now();
+                js.name.resize(2);
+                js.name[0] = "ptu_pan";
+                js.name[1] = "ptu_tilt";
+                js.position.resize(2);
+                js.position[0] = 0.0;
+                js.position[1] = pitch*(M_PI/180.0);
+                pub_.publish(js);
+
                 ROS_INFO("Wait for mount finished rotation ...");
-                ros::Duration(7.0).sleep();
-                send_degree = true;
+                ros::Duration(2.0).sleep();
+                get_ts(ts_);
+                ros::spinOnce();
+                send_deg_ = true;
             
                 rate.sleep();
                 ros::spinOnce();
@@ -144,7 +112,7 @@ namespace CalibraionVelodyne
             else
             {
                 //ROS_INFO("same degree");
-                send_degree = false;
+                send_deg_ = false;
             
                 rate.sleep();
                 ros::spinOnce();

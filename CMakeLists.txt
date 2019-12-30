@@ -78,19 +78,19 @@ target_link_libraries(calib_velodyne
 
 
 #####################################
-add_executable(rotation_broadcaster
-   src/rotation_broadcaster.cpp
-   include/rotation_broadcaster.hpp
-)
+#add_executable(rotation_broadcaster
+#  src/rotation_broadcaster.cpp
+#   include/rotation_broadcaster.hpp
+#)
 
-add_dependencies(rotation_broadcaster
-   ${catkin_EXPORTED_TARGETS}
-   ${rotation_broadcaster_EXPORTED_TARGETS}
-)
+#add_dependencies(rotation_broadcaster
+#   ${catkin_EXPORTED_TARGETS}
+#   ${rotation_broadcaster_EXPORTED_TARGETS}
+#)
 
-target_link_libraries(rotation_broadcaster
-    ${catkin_LIBRARIES}
-    ${PCL_LIBRARIES}
-    ${Eigen3_LIBRARIES}
-)
+#target_link_libraries(rotation_broadcaster
+#    ${catkin_LIBRARIES}
+#   ${PCL_LIBRARIES}
+#   ${Eigen3_LIBRARIES}
+#)
 #####################################
