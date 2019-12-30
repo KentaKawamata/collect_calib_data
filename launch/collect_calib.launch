@@ -2,6 +2,11 @@
 <launch>
 
     <node pkg="collect_calib_data" 
+          type="ts_server"
+          name="ptu_ts_server" 
+          output="screen" />
+
+    <node pkg="collect_calib_data" 
           type="calib_velodyne"
           name="calib_velodyne_ptu" 
           output="screen" >
