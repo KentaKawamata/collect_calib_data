@@ -82,7 +82,7 @@ namespace CalibraionVelodyne
     {
         ros::Rate rate(1.0);
         float pitch;
-        float tmp_deg;
+        float tmp_deg=12345.0;
 
         while(ros::ok())
         {
@@ -98,12 +98,14 @@ namespace CalibraionVelodyne
                 js.position.resize(2);
                 js.position[0] = 0.0;
                 js.position[1] = pitch*(M_PI/180.0);
+                js.velocity.resize(2);
+                js.velocity[0] = 0.6;
+                js.velocity[1] = 0.6;
                 pub_.publish(js);
 
                 ROS_INFO("Wait for mount finished rotation ...");
                 ros::Duration(2.0).sleep();
                 get_ts(ts_);
-                ros::spinOnce();
                 send_deg_ = true;
             
                 rate.sleep();
