@@ -29,8 +29,8 @@ namespace CalibraionVelodyne
 
     void CalibVelo::get_params()
     {
-        ros::param::get("/calib_velodyne/dir_path", dir_path_);
-        ros::param::get("/calib_velodyne/file_name", file_name_);
+        ros::param::get("/calib_velodyne_ptu/dir_path", dir_path_);
+        ros::param::get("/calib_velodyne_ptu/file_name", file_name_);
     }
 
 
@@ -86,7 +86,7 @@ namespace CalibraionVelodyne
 
         while(ros::ok())
         {
-            ros::param::get("/collect_calib_data/pitch", pitch);
+            ros::param::get("/calib_velodyne_ptu/pitch", pitch);
             if(pitch != tmp_deg)
             {
                 tmp_deg = pitch;
@@ -124,7 +124,7 @@ namespace CalibraionVelodyne
 
 int main(int argc, char *argv[])
 {
-    ros::init(argc, argv, "calib_velodyne");
+    ros::init(argc, argv, "calib_velodyne_ptu");
     ros::NodeHandle nh;
 
     CalibraionVelodyne::CalibVelo *get_pcl;
