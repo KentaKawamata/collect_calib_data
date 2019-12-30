@@ -37,6 +37,26 @@ namespace CalibraionVelodyne
     void CalibVelo::get_ts(
         geometry_msgs::TransformStamped &ts)
     {
+        tf2_ros::Buffer tfBuffer;
+        tf2_ros::TransformListener tfListener(tfBuffer);
+        bool ts_get=false;
+
+        while(!ts_get)
+        {
+            try
+            {
+                ts = tfBuffer.lookupTransform("ptu_base_link", 
+                                              "velodyne", 
+                                              ros::Time());
+                ts_get=true;
+            }
+            catch(tf2::TransformException &ex)
+            {
+                ROS_ERROR("%s", ex.what());
+                ros::Duration(1.0).sleep();
+                continue;
+            }
+        }
     }
 
     void CalibVelo::getpc2_cb(
@@ -104,8 +124,9 @@ namespace CalibraionVelodyne
                 pub_.publish(js);
 
                 ROS_INFO("Wait for mount finished rotation ...");
-                ros::Duration(2.0).sleep();
+                ros::Duration(5.0).sleep();
                 get_ts(ts_);
+                ros::spinOnce();
                 send_deg_ = true;
             
                 rate.sleep();
