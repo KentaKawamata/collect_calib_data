@@ -8,6 +8,8 @@
 #include <geometry_msgs/TransformStamped.h>
 
 #include <pcl/point_types.h>
+#include <actionlib/client/simple_action_client.h>
+#include <collect_calib_data/calib_veloAction.h>
 
 namespace CalibraionVelodyne
 {
@@ -15,9 +17,19 @@ namespace CalibraionVelodyne
 
     private:
 
+        std::mutex mtx_;
+
+        actionlib::SimpleActionClient<collect_calib_data::calib_veloAction> client;
+        collect_calib_data::calib_veloResultConstPtr result;
+        collect_calib_data::calib_veloGoal goal;
+
+        float x_initial_;
+        float y_initial_;
+        float z_initial_;
+
         unsigned int count_;
+        float pitch_;
         bool send_deg_;
-        //int result_degree;
 
         std::string dir_path_;
         std::string file_name_;
@@ -25,6 +37,7 @@ namespace CalibraionVelodyne
         ros::Subscriber cloud_sub_;
         ros::Publisher pub_;
         
+        tf2_ros::Buffer tfBuffer_;
         geometry_msgs::TransformStamped ts_;
 
         void get_params();
