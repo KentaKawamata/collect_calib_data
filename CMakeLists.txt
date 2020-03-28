@@ -62,7 +62,7 @@ include_directories(
 #####################################
 add_executable(calib_velodyne
    src/calib_velodyne.cpp
-   include/calib_velodyne.hpp
+   include/calib_velodyne.h
 )
 
 add_dependencies(calib_velodyne
@@ -78,17 +78,17 @@ target_link_libraries(calib_velodyne
 
 
 #####################################
-add_executable(ts_server
-   src/ts_server.cpp
-   include/ts_server.hpp
+add_executable(calib_ts_server
+   src/calib_ts_server.cpp
+   include/calib_ts_server.h
 )
 
-add_dependencies(ts_server
+add_dependencies(calib_ts_server
    ${catkin_EXPORTED_TARGETS}
    ${ts_server_EXPORTED_TARGETS}
 )
 
-target_link_libraries(ts_server
+target_link_libraries(calib_ts_server
     ${catkin_LIBRARIES}
     ${PCL_LIBRARIES}
     ${Eigen3_LIBRARIES}
