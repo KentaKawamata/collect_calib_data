@@ -17,7 +17,7 @@
 
 #include <mutex>
 
-#include "./../include/calib_velodyne.hpp"
+#include "./../include/calib_velodyne.h"
 
 namespace CalibraionVelodyne
 {
@@ -27,7 +27,7 @@ namespace CalibraionVelodyne
         y_initial_ (0.0),
         z_initial_ (0.0),
         pub_ (nh.advertise<sensor_msgs::JointState>("ptu/cmd", 1)),
-        client ("/ptu_ts_server", true),
+        client ("/calib_ptu_ts_server", true),
         cloud_sub_ (nh.subscribe("/velodyne_points", 1, &CalibVelo::getpc2_cb, this))
     {
         get_params();
@@ -55,7 +55,7 @@ namespace CalibraionVelodyne
         goal.enable_work.data = true;
         client.sendGoal(goal);
 
-        bool finished = client.waitForResult(ros::Duration(3.0));
+        bool finished = client.waitForResult(ros::Duration(4.0));
         if(!finished)
         {
 

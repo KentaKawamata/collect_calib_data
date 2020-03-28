@@ -6,13 +6,13 @@
 #include <actionlib/client/simple_action_client.h>
 #include <collect_calib_data/calib_veloAction.h>
 
-#include "./../include/ts_server.hpp"
+#include "./../include/calib_ts_server.h"
 
 namespace CalibrationVelodyne
 {
 
     ts_server::ts_server(ros::NodeHandle &nh) :
-        server_ (nh, "ptu_ts_server", false)
+        server_ (nh, "calib_ptu_ts_server", false)
     {
         server_.registerGoalCallback(boost::bind(&ts_server::goal_callback, this));
         server_.start();
@@ -30,6 +30,12 @@ namespace CalibrationVelodyne
           goal_ = server_.acceptNewGoal();
         }
 
+        if(goal_->enable_work.data == false)
+        {
+            server_.shutdown();
+            ros::shutdown();
+        }
+
         ros::Rate rate(1.0);
         tf2_ros::Buffer tfBuffer;
         tf2_ros::TransformListener tfListener(tfBuffer);
@@ -39,7 +45,7 @@ namespace CalibrationVelodyne
         {
             try
             {
-                ts = tfBuffer.lookupTransform("ptu_base_link", "velodyne", ros::Time());
+                ts = tfBuffer.lookupTransform("ptu_base_link", "velodyne", ros::Time(0), ros::Duration(2.0));
                 break;
             }
             catch(tf2::TransformException &ex)
@@ -71,7 +77,7 @@ namespace CalibrationVelodyne
 
 int main(int argc, char *argv[])
 {
-    ros::init(argc, argv, "ptu_ts_server");
+    ros::init(argc, argv, "calib_ts_server");
     ros::NodeHandle nh;
 
     CalibrationVelodyne::ts_server *server;
