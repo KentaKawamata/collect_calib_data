@@ -99,23 +99,6 @@ namespace CalibraionVelodyne
                 z_initial_ = R(2,3);
             }
 
-            /*
-            const float a = 0.8;
-            const float b = 210.8;
-            const float c = 2.5;
-            const float d = 210.1;
-            if(pitch_>0.0)
-            {
-                R(0,3) = R(0,3) - ((x_initial_-R(0,3))*a);
-                R(2,3) = R(2,3) + ((z_initial_-R(2,3))*b);
-            }
-            else if(pitch_<0.0)
-            {
-                R(0,3) = R(0,3) + ((x_initial_-R(0,3))*c);
-                R(2,3) = R(2,3) - ((z_initial_-R(2,3))*d);
-            }
-            */
-
             pcl_ros::transformPointCloud(R, 
                                         pc2, 
                                         pc2_transformed);
@@ -177,9 +160,7 @@ namespace CalibraionVelodyne
             }
             else
             {
-                //ROS_INFO("same degree");
                 send_deg_ = false;
-            
                 rate.sleep();
                 ros::spinOnce();
             }
