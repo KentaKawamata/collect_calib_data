@@ -40,6 +40,11 @@ namespace CalibraionVelodyne
 
     CalibVelo::~CalibVelo()
     {
+        goal.enable_work.data = false;
+        client.sendGoal(goal);
+        cloud_sub_.shutdown();
+        pub_.shutdown();
+        ros::shutdown();
     }
 
     void CalibVelo::get_params()
