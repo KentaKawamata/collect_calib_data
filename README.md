@@ -1,4 +1,5 @@
 # collect_calib_data
+iaaaaaaaaaaa
 
 Velodyneをpitch方向に動かすための雲台
 
