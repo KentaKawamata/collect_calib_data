@@ -2,8 +2,8 @@
 <launch>
 
     <node pkg="collect_calib_data" 
-          type="ts_server"
-          name="ptu_ts_server" 
+          type="calib_ts_server"
+          name="calib_ts_server" 
           output="screen" />
 
     <node pkg="collect_calib_data" 
